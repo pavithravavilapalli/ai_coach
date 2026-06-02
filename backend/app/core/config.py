@@ -9,7 +9,9 @@ class Settings:
     VERSION: str = os.getenv("VERSION", "1.0.0")
     API_V1_STR: str = os.getenv("API_V1_STR", "/api/v1")
     # Dynamically resolve DATABASE_URL to use existing ai_coach.db if found
-    if os.path.exists("ai_coach.db"):
+    if os.getenv("VERCEL"):
+        _default_db = "sqlite:////tmp/sql_app.db"
+    elif os.path.exists("ai_coach.db"):
         _default_db = "sqlite:///./ai_coach.db"
     elif os.path.exists("../ai_coach.db"):
         _default_db = "sqlite:///../ai_coach.db"
