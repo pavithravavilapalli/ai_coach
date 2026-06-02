@@ -1,0 +1,35 @@
+# Python pycache and byte-code
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.*
+
+# Testing and cache
+.pytest_cache/
+.cache/
+.mypy_cache/
+
+# Databases
+*.db
+*.sqlite
+*.db-journal
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
