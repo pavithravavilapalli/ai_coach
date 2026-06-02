@@ -1,12 +1,21 @@
-fastapi>=0.110.0
-uvicorn>=0.28.0
-pydantic>=2.6.0
-pydantic-settings>=2.2.0
-sqlalchemy>=2.0.0
-pandas>=2.2.0
-numpy>=1.26.0
-scikit-learn>=1.4.0
-openai>=1.12.0
-google-genai>=0.1.0
+# Core Framework
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.1
+pydantic>=2.7.4
 python-dotenv>=1.0.1
-ruff>=0.3.0  # Ultra-fast Python linter and formatter
+python-multipart>=0.0.7
+
+# Database & Migrations
+SQLAlchemy>=2.0.30
+alembic>=1.13.1
+
+# AI & Data Science Analytics
+google-generativeai>=0.6.0
+google-genai>=0.1.0
+pandas>=2.2.2
+numpy>=1.26.4
+scikit-learn>=1.5.0
+
+# Testing
+pytest>=8.2.2
+httpx>=0.27.0

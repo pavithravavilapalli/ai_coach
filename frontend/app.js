@@ -1,5 +1,5 @@
 // Cohesive API endpoint base configuration
-const API_BASE = window.location.origin;
+const API_BASE = 'http://localhost:8000';
 
 // Application State Management
 let currentSchedule = null;
@@ -10,7 +10,15 @@ let activeTab = 'scheduler';
 document.addEventListener("DOMContentLoaded", () => {
     // Render current date
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById("display-date").innerText = new Date().toLocaleDateString('en-US', dateOptions);
+    const dateEl = document.getElementById("display-date");
+    if (dateEl) {
+        dateEl.innerText = new Date().toLocaleDateString('en-US', dateOptions);
+    }
+    
+    // Initialize circular progress charts from default slider values
+    updateSliderMetric('python', 75);
+    updateSliderMetric('ai', 60);
+    updateSliderMetric('data', 45);
     
     // Core Initializer Routine
     fetchTodaySchedule();
@@ -18,13 +26,77 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchIndexedDocuments();
     setupDragAndDropUploader();
     
-    // Default Tab View Initializer
-    switchTab('scheduler');
+    // Default Tab View Initializer with deep-linking support
+    const initialTab = window.location.hash.replace('#', '') || 'scheduler';
+    if (['scheduler', 'coach', 'analytics', 'health'].includes(initialTab)) {
+        switchTab(initialTab);
+    } else {
+        switchTab('scheduler');
+    }
+    
+    // Listen for browser forward/back button history hash changes
+    window.addEventListener("hashchange", () => {
+        const currentHash = window.location.hash.replace('#', '');
+        if (['scheduler', 'coach', 'analytics', 'health'].includes(currentHash) && currentHash !== activeTab) {
+            switchTab(currentHash);
+        }
+    });
+    
+    // Setup textarea submit on Enter and Auto-grow
+    const chatInput = document.getElementById("chat-user-message-input");
+    if (chatInput) {
+        chatInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById("chat-input-form").dispatchEvent(new Event('submit'));
+            }
+        });
+        
+        chatInput.addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
+        });
+    }
+    
+    // Listen for browser fullscreen change events (e.g. exit with ESC key)
+    document.addEventListener("fullscreenchange", () => {
+        const btn = document.getElementById("fullscreen-btn");
+        if (btn) {
+            if (document.fullscreenElement) {
+                btn.innerHTML = "<span>📴</span>";
+                btn.title = "Exit Fullscreen";
+            } else {
+                btn.innerHTML = "<span>📺</span>";
+                btn.title = "Toggle Fullscreen";
+            }
+        }
+    });
 });
 
 // --- Tab Routing & Navigation System ---
 function switchTab(tabId) {
+    console.log(`[Navigation] switchTab called with tabId: "${tabId}"`);
     activeTab = tabId;
+    
+    // Sync active tab state to browser URL hash
+    if (window.location.hash !== `#${tabId}`) {
+        window.location.hash = tabId;
+    }
+    
+    // Update dynamic header title
+    const pageTitleEl = document.getElementById('header-page-title');
+    if (pageTitleEl) {
+        const tabNames = {
+            'scheduler': 'Daily Routine Planner',
+            'coach': 'AI Career Mentor',
+            'analytics': 'Productivity & Habit Analytics',
+            'health': 'Developer Health Hub'
+        };
+        pageTitleEl.innerText = tabNames[tabId] || 'Dashboard';
+        console.log(`[Navigation] Updated pageTitleEl text to: "${pageTitleEl.innerText}"`);
+    } else {
+        console.warn(`[Navigation] Element "header-page-title" not found/visible (Scheduler tab is inactive).`);
+    }
     
     // Update nav sidebar buttons visual status
     const buttons = {
@@ -45,9 +117,12 @@ function switchTab(tabId) {
         if (buttons[key]) {
             if (key === tabId) {
                 buttons[key].classList.add('active');
+                console.log(`[Navigation] Sidebar button activated: "nav-btn-${key}"`);
             } else {
                 buttons[key].classList.remove('active');
             }
+        } else {
+            console.warn(`[Navigation] Sidebar button "nav-btn-${key}" not found in DOM`);
         }
     });
     
@@ -56,19 +131,24 @@ function switchTab(tabId) {
         if (views[key]) {
             if (key === tabId) {
                 views[key].classList.add('active');
+                console.log(`[Navigation] Section container activated: "section-${key}" (DOM element exists)`);
             } else {
                 views[key].classList.remove('active');
             }
+        } else {
+            console.error(`[Navigation] Error: Section container "section-${key}" not found in DOM!`);
         }
     });
     
     // Trigger Live Analytics data loading if transitioning to Analytics
     if (tabId === 'analytics') {
+        console.log(`[Navigation] Fetching analytics metrics...`);
         fetchAnalyticsData();
     }
     
     // Trigger Live Health data loading if transitioning to Health Hub
     if (tabId === 'health') {
+        console.log(`[Navigation] Fetching health metrics...`);
         fetchHealthData();
     }
 }
@@ -331,6 +411,7 @@ async function handleSendChatMessage(event) {
     
     // Clear input instantly
     input.value = "";
+    input.style.height = "auto";
     
     // 1. Render User Message inside DOM bubble
     renderChatMessage(message, 'user');
@@ -644,7 +725,7 @@ async function fetchAnalyticsData() {
         // Update predictive widgets
         if (mlScoreEl) mlScoreEl.innerText = `${prediction.prediction_percentage}%`;
         
-        if (mlRecsEl) {
+        if (mlRecsEl && prediction.recommendations) {
             mlRecsEl.innerHTML = prediction.recommendations.map(rec => `
                 <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex items-start gap-3">
                     <span class="text-indigo-400 mt-0.5">⭐</span>
@@ -656,8 +737,26 @@ async function fetchAnalyticsData() {
         // C. Render canvas segmentation donut chart
         drawCanvasChart(summary.category_distribution);
         
+        // Remove fallback banner if it exists
+        const existingBanner = document.getElementById("analytics-fallback-banner");
+        if (existingBanner) existingBanner.remove();
+        
     } catch (err) {
         console.error("Analytics loading pipeline failed:", err);
+        
+        // Display visible fallback message banner
+        const section = document.getElementById("section-analytics");
+        const existingBanner = document.getElementById("analytics-fallback-banner");
+        if (existingBanner) existingBanner.remove();
+        
+        const alertBanner = document.createElement("div");
+        alertBanner.id = "analytics-fallback-banner";
+        alertBanner.className = "mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-semibold flex items-center gap-3";
+        alertBanner.innerHTML = "<span>⚠️</span> <div><strong>Analytics Loading Error:</strong> Failed to fetch live analytics from the backend. Displaying offline fallback indicators.</div>";
+        if (section) {
+            section.insertBefore(alertBanner, section.children[1]);
+        }
+        
         if (mlRecsEl) {
             mlRecsEl.innerHTML = `
                 <div class="p-3 bg-rose-500/5 border border-rose-500/10 rounded-xl text-rose-400 text-xs font-semibold">
@@ -725,7 +824,7 @@ function drawCanvasChart(distribution) {
         ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
         ctx.closePath();
         
-        ctx.fillStyle = themeColors[cat];
+        ctx.fillStyle = themeColors[cat] || "#6366f1";
         ctx.fill();
         
         startAngle = endAngle;
@@ -751,7 +850,7 @@ function drawCanvasChart(distribution) {
         
         ctx.beginPath();
         ctx.arc(legendX, legendY, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = themeColors[cat];
+        ctx.fillStyle = themeColors[cat] || "#6366f1";
         ctx.fill();
         
         ctx.font = "600 10px 'Inter', sans-serif";
@@ -781,9 +880,25 @@ async function fetchHealthData() {
         
         currentHealth = await response.json();
         renderHealthUI(currentHealth);
+        
+        // Remove health fallback banner if it exists
+        const existingBanner = document.getElementById("health-fallback-banner");
+        if (existingBanner) existingBanner.remove();
     } catch (err) {
         console.error("Health fetch error:", err);
-        alert("Could not load fitness logs from backend. Make sure the server is online.");
+        
+        // Display visible fallback message banner
+        const section = document.getElementById("section-health");
+        const existingBanner = document.getElementById("health-fallback-banner");
+        if (existingBanner) existingBanner.remove();
+        
+        const alertBanner = document.createElement("div");
+        alertBanner.id = "health-fallback-banner";
+        alertBanner.className = "mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-semibold flex items-center gap-3";
+        alertBanner.innerHTML = "<span>⚠️</span> <div><strong>Health Hub Loading Error:</strong> Failed to fetch live physical logs from the backend. Displaying offline fallback indicators.</div>";
+        if (section) {
+            section.insertBefore(alertBanner, section.children[1]);
+        }
     }
 }
 
@@ -1070,6 +1185,55 @@ async function handleDeleteDocument(docId) {
     } catch (err) {
         console.error(err);
         alert("Could not remove document index. Check server status.");
+    }
+}
+
+// Global function to sync range sliders and circular SVG rings
+function updateSliderMetric(track, value) {
+    // 1. Update text label
+    const labelId = `slider-val-${track}`;
+    const labelEl = document.getElementById(labelId);
+    if (labelEl) {
+        labelEl.innerText = `${value}%`;
+    }
+    
+    // 2. Synchronize circular progress SVGs
+    // Circumference of our SVG circles is 2 * PI * r = 2 * Math.PI * 28 = 175.929
+    const circumference = 175.929;
+    
+    if (track === 'python') {
+        const circleEl = document.getElementById('circle-weekly');
+        if (circleEl) {
+            const offset = circumference - (value / 100) * circumference;
+            circleEl.style.strokeDashoffset = offset;
+        }
+    } else if (track === 'ai') {
+        const circleEl = document.getElementById('circle-skill');
+        if (circleEl) {
+            const offset = circumference - (value / 100) * circumference;
+            circleEl.style.strokeDashoffset = offset;
+        }
+    } else if (track === 'data') {
+        const circleEl = document.getElementById('circle-streak');
+        if (circleEl) {
+            const offset = circumference - (value / 100) * circumference;
+            circleEl.style.strokeDashoffset = offset;
+        }
+    }
+}
+
+// Toggle Fullscreen Mode via Browser API
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen mode: ${err.message}`);
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(err => {
+                console.error(`Error exiting fullscreen mode: ${err.message}`);
+            });
+        }
     }
 }
 

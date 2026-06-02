@@ -24,8 +24,8 @@
 }
 
 html, body {
-    height: 100%;
-    width: 100%;
+    min-height: 100vh;
+    width: 100vw;
 }
 
 /* Base Global Elements */
@@ -39,7 +39,8 @@ body {
     background-color: var(--midnight);
     color: var(--slate-200);
     font-family: 'Inter', sans-serif;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     position: relative;
 }
 
@@ -115,13 +116,59 @@ body {
 
 /* Layout Containers & Components */
 .app-container {
-    height: 100vh;
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
+    gap: 0 !important;
 }
 
-/* Sidebar Styling */
-.sidebar {
-    border: 1px solid var(--glass-border);
+/* Unified Top Navigation Header Styling */
+.top-nav-header {
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--slate-800);
     box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+.top-nav-header nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.top-nav-header nav .nav-item {
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.75rem !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    width: auto !important;
+    white-space: nowrap;
+}
+
+/* Main Dashboard Panel - Occupying remaining workspace */
+.main-content {
+    flex: 1 1 0% !important;
+    min-height: 100vh !important;
+    width: 100%;
+    border-radius: 0 !important;
+    border: none !important;
+    display: flex;
+    flex-direction: column;
 }
 
 .logo-box {
@@ -133,8 +180,11 @@ body {
     border: 1px solid transparent;
     color: var(--slate-400);
     cursor: pointer;
-    text-align: left;
-    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease-in-out;
 }
 
 .nav-item:hover {
@@ -484,6 +534,24 @@ body {
 .active\:scale-95:active { transform: scale(0.95); }
 
 @media (min-width: 768px) {
+    .app-container {
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
+    }
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: calc(100vh - 70px) !important;
+        overflow: visible !important;
+    }
+    .tab-view.active {
+        display: flex;
+        height: auto;
+        overflow: visible;
+    }
     .md\:p-6 { padding: 1.5rem; }
     .md\:p-8 { padding: 2rem; }
     .md\:w-72 { width: 18rem; }
@@ -621,4 +689,479 @@ body {
     color: var(--rose-500);
     background: rgba(244, 63, 94, 0.1);
 }
+
+/* Full Width Chat Interface & Textarea Support */
+#chat-messages-log,
+#chat-input-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Custom Textarea styling */
+#chat-user-message-input {
+    resize: none;
+    min-height: 56px;
+    max-height: 200px;
+    line-height: 1.5;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s, height 0.1s ease;
+}
+
+.chat-send-btn {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Premium Mobile Responsiveness Adaptations */
+@media (max-width: 767px) {
+    /* Override body-level overflow hidden to allow fluid scrolling on mobile devices */
+    body {
+        overflow-y: auto !important;
+        height: auto !important;
+    }
+
+    /* Set app-container to stack vertically and allow normal page height expansion */
+    .app-container {
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Redesign top navigation header for mobile */
+    .top-nav-header {
+        height: auto !important;
+        flex-direction: column !important;
+        padding: 1rem !important;
+        gap: 0.75rem !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Allow horizontal scrolling for tab items on mobile screen */
+    .top-nav-header nav {
+        width: 100% !important;
+        overflow-x: auto !important;
+        padding-bottom: 0.5rem !important;
+        display: flex !important;
+        gap: 0.35rem !important;
+        justify-content: flex-start !important;
+    }
+
+    .top-nav-header nav .nav-item {
+        padding: 0.5rem 0.65rem !important;
+        width: auto !important;
+        justify-content: center !important;
+        border-radius: 0.5rem !important;
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Hide text inside navigation buttons on narrow mobile screen to save space */
+    .top-nav-header nav .nav-item .nav-text {
+        display: none !important;
+    }
+
+    /* Increase icon size a bit since we hide the text */
+    .top-nav-header nav .nav-icon {
+        font-size: 1.15rem !important;
+        margin: 0 !important;
+    }
+
+    /* Allow the main panel to grow fluidly on the page */
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        flex: none !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Compress padding on dashboard sections and allow vertical expansion */
+    .tab-view {
+        padding: 1rem !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .tab-view.active {
+        display: flex !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    
+    /* Responsive adjustment for chat input area width */
+    #chat-messages-log,
+    #chat-input-form {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Chat layout column structure on mobile */
+    #section-coach .flex-1.flex.flex-col.md\:flex-row {
+        overflow: visible !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+    }
+
+    #section-coach .flex-1.flex.flex-col.rounded-xl.border {
+        min-height: 480px !important;
+        height: auto !important;
+        overflow: visible !important;
+        flex-shrink: 0 !important;
+    }
+
+    #section-coach .w-full.md\:w-80 {
+        width: 100% !important;
+        max-height: none !important;
+        border-left: none !important;
+        border-top: 1px solid var(--slate-800) !important;
+        padding-top: 1.5rem !important;
+        padding-left: 0 !important;
+        margin-top: 1rem !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* --- New Dashboard Header Styles --- */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 2rem;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--slate-800);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: 70px;
+}
+
+.header-search {
+    display: flex;
+    align-items: center;
+    background: rgba(3, 7, 18, 0.6);
+    border: 1px solid var(--slate-800);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    width: 280px;
+    transition: all 0.2s;
+}
+
+.header-search:focus-within {
+    border-color: var(--indigo-500);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+}
+
+.header-search input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--slate-100);
+    font-size: 0.875rem;
+    width: 100%;
+    margin-left: 0.5rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.action-icon-btn {
+    background: rgba(3, 7, 18, 0.4);
+    border: 1px solid var(--slate-800);
+    color: var(--slate-400);
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.action-icon-btn:hover {
+    color: var(--slate-100);
+    border-color: rgba(99, 102, 241, 0.3);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.notification-dot {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--pink-500);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--pink-500);
+}
+
+/* --- Goal Progress Circular SVG Styles --- */
+.circle-progress-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.circle-svg {
+    transform: rotate(-90deg);
+}
+
+.circle-bg {
+    fill: none;
+    stroke: var(--slate-850);
+    stroke-width: 6;
+}
+
+.circle-fill {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s ease-in-out;
+}
+
+/* --- Interactive Weekly Activity Bar Chart --- */
+.weekly-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 140px;
+    padding-top: 1.5rem;
+    position: relative;
+}
+
+.weekly-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+    cursor: pointer;
+    position: relative;
+}
+
+.weekly-bar {
+    width: 1rem;
+    background: linear-gradient(180deg, var(--indigo-500), rgba(99, 102, 241, 0.2));
+    border-radius: 9999px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.1);
+}
+
+.weekly-bar-container:hover .weekly-bar {
+    transform: scaleY(1.05);
+    background: linear-gradient(180deg, var(--pink-500), var(--purple-500));
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
+}
+
+.weekly-bar-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--slate-400);
+    margin-top: 0.5rem;
+}
+
+.chart-tooltip {
+    position: absolute;
+    background: rgba(3, 7, 18, 0.95);
+    border: 1px solid var(--slate-800);
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--slate-100);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -100%) scale(0.9);
+    transition: all 0.15s ease-out;
+    z-index: 10;
+    white-space: nowrap;
+    box-shadow: var(--glass-shadow);
+    top: -5px;
+    left: 50%;
+}
+
+.weekly-bar-container:hover .chart-tooltip {
+    opacity: 1;
+    transform: translate(-50%, -120%) scale(1);
+}
+
+/* --- Custom Glowing Range Sliders --- */
+.progress-slider-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.custom-range-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--slate-850);
+    border-radius: 9999px;
+    outline: none;
+    transition: all 0.2s;
+    border: 1px solid var(--slate-800);
+}
+
+.custom-range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--indigo-500);
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--indigo-500);
+    transition: all 0.15s;
+}
+
+.custom-range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    background: var(--pink-500);
+    box-shadow: 0 0 12px var(--pink-500);
+}
+
+@media (min-width: 768px) {
+    #section-coach {
+        height: calc(100vh - 70px) !important;
+        overflow: hidden !important;
+    }
+}
+
+/* Desktop and Laptop Screen Optimizations */
+@media (min-width: 1024px) {
+    .app-container {
+        flex-direction: row !important;
+        width: 100vw !important;
+        min-height: 100vh !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    
+    .top-nav-header {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        width: 260px !important;
+        height: 100vh !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        padding: 2.5rem 1.5rem !important;
+        border-right: 1px solid var(--slate-800) !important;
+        border-bottom: none !important;
+        background: var(--glass-bg) !important;
+        backdrop-filter: blur(20px) !important;
+        box-shadow: var(--glass-shadow) !important;
+        z-index: 100 !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .top-nav-header nav {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 0.75rem !important;
+        margin-top: 2.5rem !important;
+        margin-bottom: auto !important;
+    }
+    
+    .top-nav-header nav .nav-item {
+        width: 100% !important;
+        padding: 0.85rem 1.25rem !important;
+        border-radius: 0.75rem !important;
+        justify-content: flex-start !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    /* Actions and user info at bottom of sidebar */
+    .top-nav-header > div:last-child {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem !important;
+        margin-top: auto !important;
+        padding-top: 1.5rem !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        width: 100% !important;
+        align-items: center !important;
+    }
+    
+    .top-nav-header > div:last-child > div:nth-child(1) {
+        grid-column: span 2 !important;
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    
+    .top-nav-header > div:last-child > div:nth-child(2) {
+        grid-column: span 2 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    
+    .top-nav-header > div:last-child > button {
+        width: 100% !important;
+        justify-content: center !important;
+        margin: 0 !important;
+    }
+    
+    .top-nav-header > div:last-child > div:nth-child(4) {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 !important;
+    }
+
+    .main-content {
+        margin-left: 260px !important;
+        width: calc(100vw - 260px) !important;
+        min-height: 100vh !important;
+        height: auto !important;
+        overflow: visible !important;
+        flex: 1 1 0% !important;
+    }
+    
+    .tab-view.active {
+        display: flex;
+        height: auto;
+        overflow: visible;
+    }
+    
+    #section-coach {
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+    
+    /* Responsive classes for grid & flex layouts */
+    .lg\:flex { display: flex !important; }
+    .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .lg\:flex-row { flex-direction: row !important; }
+    .lg\:w-48 { width: 12rem !important; }
+}
+
 
