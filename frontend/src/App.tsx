@@ -657,14 +657,14 @@ export default function App() {
   };
 
   return (
-    <div className="w-full min-h-screen flex text-slate-200 relative bg-midnight font-inter select-none">
+    <div className="w-screen min-h-screen flex text-slate-200 relative bg-midnight font-inter select-none">
       {/* Background Glowing Blobs */}
       <div className="blob blob-1"></div>
       <div className="blob blob-2"></div>
       <div className="blob blob-3"></div>
 
       {/* FIXED SIDEBAR (250px) */}
-      <aside className="w-[250px] shrink-0 border-r border-slate-800 bg-slate-950/50 backdrop-blur-xl flex flex-col h-screen fixed top-0 left-0 z-50">
+      <aside className="w-[250px] shrink-0 border-r border-slate-800 bg-slate-950/50 backdrop-blur-xl flex flex-col h-screen sticky top-0 left-0 z-50">
         {/* Sidebar Logo Header */}
         <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-800">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-base shadow-lg shadow-indigo-500/20 font-outfit font-black">
@@ -738,7 +738,7 @@ export default function App() {
       </aside>
 
       {/* MAIN CONTAINER AREA */}
-      <div className="flex-1 flex flex-col min-h-screen ml-[250px] relative z-10">
+      <div className="flex-grow flex-1 flex flex-col min-h-screen relative z-10">
         {/* Main Dashboard Header */}
         <header className="h-16 flex items-center justify-between px-8 border-b border-slate-800 bg-slate-900/30 backdrop-blur-xl sticky top-0 z-40">
           {/* Header Title */}
