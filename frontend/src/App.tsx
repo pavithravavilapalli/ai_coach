@@ -657,7 +657,7 @@ export default function App() {
   };
 
   return (
-    <div className="w-full min-h-screen flex text-slate-200 relative overflow-hidden bg-midnight font-inter select-none">
+    <div className="w-full min-h-screen flex text-slate-200 relative bg-midnight font-inter select-none">
       {/* Background Glowing Blobs */}
       <div className="blob blob-1"></div>
       <div className="blob blob-2"></div>
@@ -770,7 +770,7 @@ export default function App() {
         </header>
 
         {/* PAGE CONTENT CONTAINER */}
-        <main className="flex-1 p-8 overflow-y-auto max-w-full">
+        <main className="flex-1 p-8 overflow-auto w-full">
           {/* DYNAMIC VIEW: Scheduler Tab */}
           {activeTab === 'scheduler' && (
             <div className="space-y-6">
@@ -1087,7 +1087,7 @@ export default function App() {
 
           {/* DYNAMIC VIEW: AI Career Mentor Tab */}
           {activeTab === 'coach' && (
-            <div className="space-y-6 flex flex-col h-[calc(100vh-140px)]">
+            <div className="space-y-6 flex flex-col w-full">
               {/* Header Title */}
               <div className="flex items-center justify-between border-b border-slate-800 pb-4 shrink-0">
                 <div className="flex items-center gap-4">
@@ -1114,10 +1114,10 @@ export default function App() {
               </div>
 
               {/* Chat Split Pane */}
-              <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden min-h-0">
+              <div className="flex-1 flex flex-col md:flex-row gap-6 w-full">
                 {/* Chat Message Logs Area */}
-                <div className="flex-1 flex flex-col rounded-xl border border-slate-800 bg-slate-950/20 p-6 overflow-hidden">
-                  <div className="flex-1 overflow-y-auto flex flex-col gap-4 pr-2">
+                <div className="flex-1 flex flex-col rounded-xl border border-slate-800 bg-slate-950/20 p-6">
+                  <div className="flex-1 flex flex-col gap-4">
                     {/* Welcome Message */}
                     <div className="flex gap-4 max-w-[85%] self-start">
                       <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-sm shrink-0">
@@ -1223,7 +1223,7 @@ export default function App() {
                 </div>
 
                 {/* Right: RAG File Uploader, Skills & Guides */}
-                <div className="w-full md:w-80 shrink-0 flex flex-col gap-6 overflow-y-auto max-h-[250px] md:max-h-none border-l border-slate-800/60 pl-4 pr-1">
+                <div className="w-full md:w-80 shrink-0 flex flex-col gap-6 border-l border-slate-800/60 pl-4 pr-1">
                   {/* File Uploader */}
                   <div className="flex flex-col gap-3">
                     <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">
