@@ -26,12 +26,12 @@
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-html, body {
+html, body, #root {
   margin: 0;
   padding: 0;
   width: 100vw;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
 }
 
 body {

@@ -71,6 +71,7 @@ interface HealthHub {
 export default function App() {
   // Navigation State
   const [activeTab, setActiveTab] = useState<'scheduler' | 'coach' | 'analytics' | 'health'>('scheduler');
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   // API Status & Date
   const [apiConnected, setApiConnected] = useState<boolean>(true);
@@ -657,14 +658,26 @@ export default function App() {
   };
 
   return (
-    <div className="w-screen min-h-screen flex text-slate-200 relative bg-midnight font-inter select-none">
+    <div className="w-screen h-screen flex text-slate-200 relative bg-midnight font-inter select-none overflow-hidden">
       {/* Background Glowing Blobs */}
       <div className="blob blob-1"></div>
       <div className="blob blob-2"></div>
       <div className="blob blob-3"></div>
 
-      {/* FIXED SIDEBAR (250px) */}
-      <aside className="w-[250px] shrink-0 border-r border-slate-800 bg-slate-950/50 backdrop-blur-xl flex flex-col h-screen sticky top-0 left-0 z-50">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+        />
+      )}
+
+      {/* SIDEBAR */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-[250px] shrink-0 border-r border-slate-800 bg-slate-950/90 backdrop-blur-xl flex flex-col h-full transition-transform duration-300 md:static md:translate-x-0 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         {/* Sidebar Logo Header */}
         <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-800">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-base shadow-lg shadow-indigo-500/20 font-outfit font-black">
@@ -678,7 +691,7 @@ export default function App() {
         {/* Sidebar Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-2">
           <button
-            onClick={() => handleTabChange('scheduler')}
+            onClick={() => { handleTabChange('scheduler'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 ${
               activeTab === 'scheduler' ? 'sidebar-item-active text-slate-100' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
             }`}
@@ -688,7 +701,7 @@ export default function App() {
           </button>
 
           <button
-            onClick={() => handleTabChange('coach')}
+            onClick={() => { handleTabChange('coach'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 ${
               activeTab === 'coach' ? 'sidebar-item-active text-slate-100' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
             }`}
@@ -698,7 +711,7 @@ export default function App() {
           </button>
 
           <button
-            onClick={() => handleTabChange('analytics')}
+            onClick={() => { handleTabChange('analytics'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 ${
               activeTab === 'analytics' ? 'sidebar-item-active text-slate-100' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
             }`}
@@ -708,7 +721,7 @@ export default function App() {
           </button>
 
           <button
-            onClick={() => handleTabChange('health')}
+            onClick={() => { handleTabChange('health'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 ${
               activeTab === 'health' ? 'sidebar-item-active text-slate-100' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
             }`}
@@ -738,13 +751,20 @@ export default function App() {
       </aside>
 
       {/* MAIN CONTAINER AREA */}
-      <div className="flex-grow flex-1 flex flex-col min-h-screen relative z-10">
+      <div className="flex-grow flex-1 flex flex-col h-full overflow-hidden relative z-10">
         {/* Main Dashboard Header */}
-        <header className="h-16 flex items-center justify-between px-8 border-b border-slate-800 bg-slate-900/30 backdrop-blur-xl sticky top-0 z-40">
+        <header className="h-16 flex items-center justify-between px-4 md:px-8 border-b border-slate-800 bg-slate-900/30 backdrop-blur-xl sticky top-0 z-40">
           {/* Header Title */}
           <div className="flex items-center gap-3">
-            <span className="text-slate-500 font-medium text-sm">Workspace</span>
-            <span className="text-slate-600 font-semibold">/</span>
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-750 text-slate-350 hover:text-white transition active:scale-95"
+              title="Open Navigation"
+            >
+              ☰
+            </button>
+            <span className="text-slate-500 font-medium text-sm hidden sm:inline">Workspace</span>
+            <span className="text-slate-600 font-semibold hidden sm:inline">/</span>
             <span className="text-slate-200 font-bold text-sm">
               {activeTab === 'scheduler' && 'Daily Routine Planner'}
               {activeTab === 'coach' && 'AI Career Mentor'}
@@ -770,7 +790,7 @@ export default function App() {
         </header>
 
         {/* PAGE CONTENT CONTAINER */}
-        <main className="flex-1 p-8 overflow-auto w-full">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden w-full">
           {/* DYNAMIC VIEW: Scheduler Tab */}
           {activeTab === 'scheduler' && (
             <div className="space-y-6">
