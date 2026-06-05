@@ -57,8 +57,28 @@ def verify_trainer():
         activity = trainer_service.toggle_workout_status(db=db, target_date=today_date, status=True)
         
         assert activity.is_workout_completed is True, "Error: Workout status was not saved!"
-        print(f"[SUCCESS] Workout state committed: is_workout_completed = {activity.is_workout_completed}\n")
+        # Verify all individual stretches are now [DONE]
+        for stretch in activity.workout_notes.split("; "):
+            assert "|[DONE]" in stretch, f"Error: Sibling stretch was not marked DONE! Got {stretch}"
+        print(f"[SUCCESS] Workout state committed: is_workout_completed = {activity.is_workout_completed}")
         
+        # 6. Test Individual Stretch Toggle
+        print("[TEST] Untoggling workout...")
+        activity = trainer_service.toggle_workout_status(db=db, target_date=today_date, status=False)
+        assert activity.is_workout_completed is False, "Error: Workout status should be False!"
+        for stretch in activity.workout_notes.split("; "):
+            assert "|[PEND]" in stretch, f"Error: Sibling stretch was not reset to PEND! Got {stretch}"
+            
+        print("[TEST] Toggling stretches individually...")
+        stretches_count = len(activity.workout_notes.split("; "))
+        for idx in range(stretches_count):
+            activity = trainer_service.toggle_stretch_completion(db=db, target_date=today_date, stretch_index=idx)
+            if idx == stretches_count - 1:
+                assert activity.is_workout_completed is True, "Error: Workout should automatically complete when the last stretch is toggled!"
+            else:
+                assert activity.is_workout_completed is False, f"Error: Workout should not complete when only {idx+1}/{stretches_count} are done!"
+        
+        print("[SUCCESS] Individual stretch toggling and automatic workout completion checked successfully!\n")
         print("[SUCCESS] Personal Trainer & Health Hub pipeline operates correctly!")
 
     except AssertionError as ae:

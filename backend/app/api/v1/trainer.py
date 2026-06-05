@@ -67,3 +67,18 @@ def toggle_workout_completion(is_completed: bool, db: Session = Depends(get_db))
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while toggling workout logs: {str(e)}"
         )
+
+@router.patch("/stretches/{stretch_index}/toggle", response_model=DailyActivity)
+def toggle_stretch_completion_endpoint(stretch_index: int, db: Session = Depends(get_db)):
+    """
+    Toggles the completion status of a single stretch item by its zero-based index.
+    """
+    try:
+        today_date = datetime.date.today()
+        record = trainer_service.toggle_stretch_completion(db=db, target_date=today_date, stretch_index=stretch_index)
+        return record
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while toggling the individual stretch status: {str(e)}"
+        )

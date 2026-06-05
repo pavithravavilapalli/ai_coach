@@ -637,6 +637,20 @@ export default function App() {
     }
   };
 
+  const handleToggleStretch = async (stretchIndex: number) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/trainer/stretches/${stretchIndex}/toggle`, {
+        method: 'PATCH'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setHealth(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const parseStretches = () => {
     if (!health || !health.workout_notes) return [];
     return health.workout_notes.split('; ').filter(s => s.trim());
@@ -1372,8 +1386,15 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Grid Widgets */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {analyticsLoading ? (
+                <div className="flex flex-col items-center justify-center p-8 text-center text-slate-400 gap-3 min-h-[300px]">
+                  <span className="animate-spin text-xl">⏳</span>
+                  <p className="text-xs font-medium text-slate-400">Retrieving habit analytics...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Grid Widgets */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="glass-card p-6 rounded-2xl flex items-center gap-4">
                   <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 text-xl">
                     ⏳
@@ -1496,6 +1517,8 @@ export default function App() {
                   </div>
                 </div>
               </div>
+                </>
+              )}
             </div>
           )}
 
@@ -1659,30 +1682,36 @@ export default function App() {
                       parseStretches().map((stretch, i) => {
                         const parts = stretch.split('|');
                         const titleDesc = parts[0] || '';
+                        const status = parts[1] ? parts[1].trim() : '[PEND]';
+                        const isComp = status === '[DONE]';
                         const regex = /(.*?)\((.*?)\)/;
                         const match = titleDesc.match(regex);
                         const title = match ? match[1].trim() : titleDesc;
                         const desc = match ? match[2].trim() : '';
-                        const isComp = health?.is_workout_completed;
 
                         return (
                           <div
                             key={i}
-                            className={`flex items-center justify-between p-3.5 gap-4 border border-slate-800 rounded-xl transition-all duration-300 ${
-                              isComp ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-950/20'
+                            onClick={() => handleToggleStretch(i)}
+                            className={`flex items-center justify-between p-3.5 gap-4 border rounded-xl cursor-pointer transition-all duration-300 ${
+                              isComp
+                                ? 'bg-emerald-500/5 border-emerald-500/20 hover:border-emerald-500/30'
+                                : 'bg-slate-950/20 border-slate-800 hover:border-indigo-500/20'
                             }`}
                           >
                             <div className="flex items-center gap-3.5 min-w-0">
                               <div
-                                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
-                                  isComp ? 'bg-emerald-500 border-emerald-500 text-white text-[9px] font-bold' : 'border-slate-700'
+                                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all duration-200 ${
+                                  isComp
+                                    ? 'bg-emerald-500 border-emerald-500 text-white text-[9px] font-bold'
+                                    : 'border-slate-700 bg-slate-950'
                                 }`}
                               >
                                 {isComp && '✔'}
                               </div>
 
                               <div className="min-w-0">
-                                <h4 className="font-bold text-slate-200 text-xs truncate">{title}</h4>
+                                <h4 className={`font-bold text-slate-200 text-xs truncate ${isComp ? 'line-through text-slate-450' : ''}`}>{title}</h4>
                                 <p className="text-[10px] text-slate-500 leading-relaxed mt-0.5 truncate">{desc}</p>
                               </div>
                             </div>

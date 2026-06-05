@@ -86,10 +86,58 @@ class TrainerService:
         
     def toggle_workout_status(self, db: Session, target_date: datetime.date, status: bool) -> DailyActivity:
         """
-        Toggles overall stretching routine completion state.
+        Toggles overall stretching routine completion state and updates all individual stretches to match.
         """
         record = self.get_or_create_daily_activity(db, target_date)
         record.is_workout_completed = status
+        
+        if record.workout_notes:
+            stretches = record.workout_notes.split("; ")
+            updated_stretches = []
+            new_status = "[DONE]" if status else "[PEND]"
+            for s in stretches:
+                if "|" in s:
+                    parts = s.split("|")
+                    updated_stretches.append(f"{parts[0]}|{new_status}")
+                else:
+                    updated_stretches.append(s)
+            record.workout_notes = "; ".join(updated_stretches)
+            
+        db.commit()
+        db.refresh(record)
+        return record
+
+    def toggle_stretch_completion(self, db: Session, target_date: datetime.date, stretch_index: int) -> DailyActivity:
+        """
+        Toggles completion state of a specific stretch by index, and updates overall workout status.
+        """
+        record = self.get_or_create_daily_activity(db, target_date)
+        if not record.workout_notes:
+            return record
+            
+        stretches = record.workout_notes.split("; ")
+        if stretch_index < 0 or stretch_index >= len(stretches):
+            return record
+            
+        s = stretches[stretch_index]
+        if "|" in s:
+            parts = s.split("|")
+            current_status = parts[1].strip()
+            new_status = "[PEND]" if current_status == "[DONE]" else "[DONE]"
+            stretches[stretch_index] = f"{parts[0]}|{new_status}"
+            
+        record.workout_notes = "; ".join(stretches)
+        
+        # Check if all are done to set overall workout completion status
+        all_done = True
+        for st in stretches:
+            if "|" in st:
+                status_part = st.split("|")[1].strip()
+                if status_part != "[DONE]":
+                    all_done = False
+                    break
+        record.is_workout_completed = all_done
+        
         db.commit()
         db.refresh(record)
         return record
